@@ -16,8 +16,18 @@
                 <div class="menu-item" id="menu-lista">
                     <span>📦</span> Produtos
                 </div>
-                <div class="menu-item">
+                <div class="menu-item" id="menu-carrinho">
                     <span>🛒</span> Carrinho de compras
+                    <span id="badge-carrinho" style="
+                        display:none;
+                        background:#e74c3c;
+                        color:white;
+                        border-radius:50%;
+                        font-size:0.7rem;
+                        padding:2px 7px;
+                        margin-left:auto;
+                        font-weight:700;
+                    "></span>
                 </div>
                 <div class="menu-item active" id="menu-adicionar">
                     <span>➕</span> Adicionar Produtos
@@ -84,8 +94,14 @@
             <section id="section-list" style="display: none;">
                 <div class="form-container">
                     <h2>📦 Lista de Produtos Cadastrados</h2>
-                    <div id="lista-container">
-                        </div>
+                    <div id="lista-container"></div>
+                </div>
+            </section>
+
+            <section id="section-carrinho" style="display: none;">
+                <div class="form-container">
+                    <h2>🛒 Carrinho de Compras</h2>
+                    <div id="carrinho-container"></div>
                 </div>
             </section>
         </main>
@@ -94,14 +110,25 @@
     <div id="toast" class="toast"></div>
 
     <script src="models/ProductModel.js"></script>
+    <script src="models/CarrinhoModel.js"></script>
     <script src="views/ProductView.js"></script>
-    <script src="controllers/ProductController.js"></script>
+    <script src="views/CarrinhoView.js"></script>
+    <script src="Controllers/ProductController.js"></script>
+    <script src="Controllers/CarrinhoController.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const productView = new ProductView();
             const productController = new ProductController(productView);
+
+            const carrinhoModel = new CarrinhoModel();
+            const carrinhoView = new CarrinhoView();
+            const carrinhoController = new CarrinhoController(carrinhoModel, carrinhoView, productController);
+
+            productController.carrinhoController = carrinhoController;
+
             productController.init();
+            carrinhoController.init();
         });
     </script>
 </body>

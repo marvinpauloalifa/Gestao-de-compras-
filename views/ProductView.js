@@ -7,7 +7,7 @@ class ProductView {
         this.statusRadios = document.querySelectorAll('input[name="status"]');
         this.descricaoTextarea = document.getElementById('productDescription');
         this.toast = document.getElementById('toast');
-        
+
         this.sectionForm = document.getElementById('section-form');
         this.sectionList = document.getElementById('section-list');
         this.listaContainer = document.getElementById('lista-container');
@@ -54,7 +54,7 @@ class ProductView {
         }
     }
 
-    renderizarProdutos(produtos, onDelete, onEdit) {
+    renderizarProdutos(produtos, onDelete, onEdit, onAdicionarCarrinho) {
         if (produtos.length === 0) {
             this.listaContainer.innerHTML = '<p style="padding: 20px; color: #667;">Nenhum produto cadastrado.</p>';
             return;
@@ -64,18 +64,27 @@ class ProductView {
             <thead>
                 <tr style="text-align: left; border-bottom: 2px solid #eee;">
                     <th style="padding: 12px;">Produto</th>
+                    <th style="padding: 12px;">Categoria</th>
                     <th style="padding: 12px;">Preço</th>
+                    <th style="padding: 12px;">Status</th>
                     <th style="padding: 12px;">Ações</th>
                 </tr>
             </thead>
             <tbody>`;
 
         produtos.forEach(p => {
+            const statusBadge = p.status === 'ativo'
+                ? '<span style="background:#d5f5e3; color:#27ae60; padding:3px 8px; border-radius:20px; font-size:0.8rem;">🟢 Ativo</span>'
+                : '<span style="background:#fadbd8; color:#e74c3c; padding:3px 8px; border-radius:20px; font-size:0.8rem;">🔴 Pausado</span>';
+
             html += `
                 <tr style="border-bottom: 1px solid #f5f5f5;">
-                    <td style="padding: 12px;">${p.nome}</td>
-                    <td style="padding: 12px;">${p.preco.toFixed(2)} MZM</td>
-                    <td style="padding: 12px;">
+                    <td style="padding: 12px; font-weight:500;">${p.nome}</td>
+                    <td style="padding: 12px; color:#777;">${p.categoria}</td>
+                    <td style="padding: 12px; font-weight:600;">${p.preco.toFixed(2)} MZM</td>
+                    <td style="padding: 12px;">${statusBadge}</td>
+                    <td style="padding: 12px; white-space:nowrap;">
+                        <button class="btn-carrinho" data-id="${p.id}" style="background:#2ecc71; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">🛒</button>
                         <button class="btn-edit" data-id="${p.id}" style="background:#3498db; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px;">Editar</button>
                         <button class="btn-delete" data-id="${p.id}" style="background:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Remover</button>
                     </td>
@@ -91,6 +100,11 @@ class ProductView {
         this.listaContainer.querySelectorAll('.btn-edit').forEach(btn => {
             btn.onclick = () => onEdit(btn.dataset.id);
         });
+        if (onAdicionarCarrinho) {
+            this.listaContainer.querySelectorAll('.btn-carrinho').forEach(btn => {
+                btn.onclick = () => onAdicionarCarrinho(btn.dataset.id);
+            });
+        }
     }
 
     prepararFormEdicao(produto) {
@@ -113,7 +127,6 @@ class ProductView {
         this.toast.innerHTML = mensagem;
         this.toast.className = 'toast show';
         if (tipo === 'error') this.toast.classList.add('error');
-        
         setTimeout(() => {
             this.toast.classList.remove('show');
         }, 3000);

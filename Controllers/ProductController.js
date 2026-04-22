@@ -4,6 +4,7 @@ class ProductController {
         this.produtos = [];
         this.nextId = 1;
         this.editandoId = null;
+        this.carrinhoController = null;
         this.carregarProdutos();
     }
 
@@ -12,9 +13,8 @@ class ProductController {
         if (dados) {
             try {
                 this.produtos = JSON.parse(dados);
-                // Define o próximo ID baseado no maior ID existente
-                this.nextId = this.produtos.length > 0 
-                    ? Math.max(...this.produtos.map(p => p.id)) + 1 
+                this.nextId = this.produtos.length > 0
+                    ? Math.max(...this.produtos.map(p => p.id)) + 1
                     : 1;
             } catch(e) {
                 this.produtos = [];
@@ -31,7 +31,6 @@ class ProductController {
         if (!dados) return;
 
         if (this.editandoId) {
-            // Lógica de Edição
             const index = this.produtos.findIndex(p => p.id == this.editandoId);
             if (index !== -1) {
                 this.produtos[index] = { ...this.produtos[index], ...dados };
@@ -39,7 +38,6 @@ class ProductController {
             }
             this.editandoId = null;
         } else {
-            // Lógica de Novo Produto (CORRIGIDO AQUI)
             const novoProduto = new ProductModel(
                 this.nextId++,
                 dados.nome,
@@ -48,15 +46,13 @@ class ProductController {
                 dados.status,
                 dados.descricao
             );
-            
             this.produtos.push(novoProduto);
             this.productView.mostrarToast(`✨ Produto "${dados.nome}" adicionado!`);
         }
 
         this.salvarProdutos();
         this.productView.limparFormulario();
-        
-        // Pequeno delay para o usuário ver o Toast antes de trocar de aba
+
         setTimeout(() => {
             this.productView.alternarAba('lista');
             this.atualizarTabela();
@@ -84,27 +80,35 @@ class ProductController {
         this.productView.renderizarProdutos(
             this.produtos,
             (id) => this.removerProduto(id),
-            (id) => this.prepararEdicao(id)
+            (id) => this.prepararEdicao(id),
+            (id) => {
+                if (this.carrinhoController) {
+                    const produto = this.produtos.find(p => p.id == id);
+                    if (produto) this.carrinhoController.adicionarProduto(produto);
+                }
+            }
         );
     }
 
     init() {
-        // Configura cliques no Menu
         document.getElementById('menu-adicionar').onclick = () => {
             this.editandoId = null;
             this.productView.limparFormulario();
             this.productView.alternarAba('form');
+            document.getElementById('section-carrinho').style.display = 'none';
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById('menu-adicionar').classList.add('active');
         };
 
         document.getElementById('menu-lista').onclick = () => {
             this.productView.alternarAba('lista');
+            document.getElementById('section-carrinho').style.display = 'none';
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById('menu-lista').classList.add('active');
             this.atualizarTabela();
         };
 
-        // Configura o envio do formulário
         this.productView.bindSubmit(() => this.processarFormulario());
-
-        // Renderiza a lista inicial
         this.atualizarTabela();
     }
 }
