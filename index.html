@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestão - Loja</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
+
 <body>
     <div class="container">
         <aside class="sidebar">
             <div class="logo">
-                <h2>Loja</h2>
+                <h2>Loja MELI</h2>
             </div>
             <nav class="menu">
                 <div class="menu-item" id="menu-lista">
-                    <span>📦</span> Produtos
+                    <span>📦</span>Visualizar Produtos
                 </div>
                 <div class="menu-item" id="menu-carrinho">
                     <span>🛒</span> Carrinho de compras
@@ -72,10 +74,10 @@
                                 <label>STATUS</label>
                                 <div class="status-options">
                                     <label class="status-option">
-                                        <input type="radio" name="status" value="ativo" checked> 🟢 ATIVO
+                                        <input type="radio" name="status" value="ativo" checked> 🟢 ACTIVO
                                     </label>
                                     <label class="status-option">
-                                        <input type="radio" name="status" value="pausado"> 🔴 PAUSADO
+                                        <input type="radio" name="status" value="desactivo"> 🔴 DESACTIVO
                                     </label>
                                 </div>
                             </div>
@@ -85,6 +87,8 @@
                             <label>DESCRIÇÃO DO PRODUTO</label>
                             <textarea id="productDescription" rows="4" placeholder="Descreva o produto..."></textarea>
                         </div>
+                        <br>
+                        <p class="note">* Campos obrigatórios</p>
 
                         <button type="submit" class="btn-submit" id="btn-submit-text">Adicionar Produto</button>
                     </form>
@@ -132,4 +136,5 @@
         });
     </script>
 </body>
+
 </html>

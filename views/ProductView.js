@@ -27,17 +27,19 @@ class ProductView {
 
     getDadosProduto() {
         const nome = this.nomeInput.value.trim();
-        const preco = this.precoInput.value;
+        const precoRaw = this.precoInput.value;
+        const preco = parseFloat(precoRaw);
         const categoria = this.categoriaSelect.value;
         const status = this.getStatusSelecionado();
         const descricao = this.descricaoTextarea.value.trim();
 
-        if (!nome || !preco || parseFloat(preco) <= 0 || !categoria) {
-            this.mostrarToast('⚠️ Preencha os campos obrigatórios!', 'error');
+        // Validação correta em JavaScript
+        if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
+            this.mostrarToast('⚠️ Preço não pode ser negativo!', 'error');
             return null;
         }
 
-        return { nome, preco: parseFloat(preco), categoria, status, descricao };
+        return { nome, preco, categoria, status, descricao };
     }
 
     alternarAba(aba) {
@@ -60,17 +62,18 @@ class ProductView {
             return;
         }
 
-        let html = `<table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="text-align: left; border-bottom: 2px solid #eee;">
-                    <th style="padding: 12px;">Produto</th>
-                    <th style="padding: 12px;">Categoria</th>
-                    <th style="padding: 12px;">Preço</th>
-                    <th style="padding: 12px;">Status</th>
-                    <th style="padding: 12px;">Ações</th>
-                </tr>
-            </thead>
-            <tbody>`;
+        let html = `
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                        <th style="padding: 12px;">Produto</th>
+                        <th style="padding: 12px;">Categoria</th>
+                        <th style="padding: 12px;">Preço</th>
+                        <th style="padding: 12px;">Status</th>
+                        <th style="padding: 12px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>`;
 
         produtos.forEach(p => {
             const statusBadge = p.status === 'ativo'
@@ -94,6 +97,7 @@ class ProductView {
         html += '</tbody></table>';
         this.listaContainer.innerHTML = html;
 
+        // Binds de eventos após renderizar o HTML
         this.listaContainer.querySelectorAll('.btn-delete').forEach(btn => {
             btn.onclick = () => onDelete(btn.dataset.id);
         });
@@ -114,6 +118,12 @@ class ProductView {
         this.precoInput.value = produto.preco;
         this.categoriaSelect.value = produto.categoria;
         this.descricaoTextarea.value = produto.descricao;
+
+        // Marcar o rádio correspondente ao status
+        this.statusRadios.forEach(radio => {
+            radio.checked = (radio.value === produto.status);
+        });
+
         this.alternarAba('form');
     }
 
@@ -126,7 +136,12 @@ class ProductView {
     mostrarToast(mensagem, tipo = 'success') {
         this.toast.innerHTML = mensagem;
         this.toast.className = 'toast show';
-        if (tipo === 'error') this.toast.classList.add('error');
+        if (tipo === 'error') {
+            this.toast.classList.add('error');
+        } else {
+            this.toast.classList.remove('error');
+        }
+
         setTimeout(() => {
             this.toast.classList.remove('show');
         }, 3000);

@@ -7,7 +7,7 @@ class CarrinhoController {
 
     adicionarProduto(produto) {
         if (produto.status === 'pausado') {
-            this.carrinhoView.mostrarToast('⚠️ Produto pausado, não pode ser adicionado!', 'error');
+            this.carrinhoView.mostrarToast('⚠️ Produto desactivo, não pode ser adicionado!', 'error');
             return;
         }
         this.carrinhoModel.adicionarItem(produto);
