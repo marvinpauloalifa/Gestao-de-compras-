@@ -66,7 +66,7 @@
                                     <option value="Acessórios">💍 Acessórios</option>
                                     <option value="Roupas">👕 Roupas</option>
                                     <option value="Casa e Decoração">🏠 Casa e Decoração</option>
-                                    <option value="Esportes">⚽ Esportes</option>
+                                    <option value="Esportes">⚽ Desporto</option>
                                     <option value="Livros">📚 Livros</option>
                                 </select>
                             </div>
@@ -87,8 +87,21 @@
                             <label>DESCRIÇÃO DO PRODUTO</label>
                             <textarea id="productDescription" rows="4" placeholder="Descreva o produto..."></textarea>
                         </div>
+
+                        <div class="form-group full-width">
+                            <label>IMAGEM DO PRODUTO</label>
+                            <input type="file" id="productImage" accept="image/*"
+                                style="padding: 10px; border: 2px dashed #e1e8ed; border-radius: 14px; background: #fafbfc; cursor: pointer; width: 100%;">
+                            <div id="image-preview"
+                                style="margin-top: 10px; max-width: 200px; display: none; text-align: center;">
+                                <img id="preview-img" src="" alt="Prévia da imagem"
+                                    style="max-width: 100%; max-height: 150px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                <button type="button" id="remove-image"
+                                    style="margin-top: 8px; background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer;">Remover</button>
+                            </div>
+                        </div>
                         <br>
-                        <p class="note">* Campos obrigatórios</p>
+                        <p class="note">* Campos obrigatorios</p>
 
                         <button type="submit" class="btn-submit" id="btn-submit-text">Adicionar Produto</button>
                     </form>

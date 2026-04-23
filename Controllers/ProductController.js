@@ -44,7 +44,8 @@ class ProductController {
                 dados.preco,
                 dados.categoria,
                 dados.status,
-                dados.descricao
+                dados.descricao,
+                dados.imagem
             );
             this.produtos.push(novoProduto);
             this.productView.mostrarToast(`✨ Produto "${dados.nome}" adicionado!`);

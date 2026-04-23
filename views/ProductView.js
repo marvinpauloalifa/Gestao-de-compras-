@@ -8,6 +8,11 @@ class ProductView {
         this.descricaoTextarea = document.getElementById('productDescription');
         this.toast = document.getElementById('toast');
 
+        this.imageInput = document.getElementById('productImage');
+        this.imagePreview = document.getElementById('image-preview');
+        this.previewImg = document.getElementById('preview-img');
+        this.removeImageBtn = document.getElementById('remove-image');
+
         this.sectionForm = document.getElementById('section-form');
         this.sectionList = document.getElementById('section-list');
         this.listaContainer = document.getElementById('lista-container');
@@ -15,6 +20,12 @@ class ProductView {
         this.menuLista = document.getElementById('menu-lista');
         this.formTitle = document.getElementById('form-title');
         this.btnSubmitText = document.getElementById('btn-submit-text');
+
+        this.currentImageBase64 = '';
+
+        // Event listeners para imagem
+        this.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
+        this.removeImageBtn.addEventListener('click', () => this.removeImage());
     }
 
     getStatusSelecionado() {
@@ -23,6 +34,52 @@ class ProductView {
             if (radio.checked) status = radio.value;
         });
         return status;
+    }
+
+    async handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validar tipo de arquivo
+        if (!file.type.startsWith('image/')) {
+            this.mostrarToast('⚠️ Por favor, selecione um arquivo de imagem válido!', 'error');
+            this.imageInput.value = '';
+            return;
+        }
+
+        // Validar tamanho (máx. 2MB)
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size > maxSize) {
+            this.mostrarToast('⚠️ A imagem deve ter no máximo 2MB!', 'error');
+            this.imageInput.value = '';
+            return;
+        }
+
+        try {
+            const base64 = await this.convertToBase64(file);
+            this.currentImageBase64 = base64;
+            this.previewImg.src = base64;
+            this.imagePreview.style.display = 'block';
+        } catch (error) {
+            this.mostrarToast('⚠️ Erro ao processar imagem!', 'error');
+            console.error(error);
+        }
+    }
+
+    convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    removeImage() {
+        this.currentImageBase64 = '';
+        this.imageInput.value = '';
+        this.imagePreview.style.display = 'none';
+        this.previewImg.src = '';
     }
 
     getDadosProduto() {
@@ -35,11 +92,11 @@ class ProductView {
 
         // Validação correta em JavaScript
         if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
-            this.mostrarToast('⚠️ Preço não pode ser negativo!', 'error');
+            this.mostrarToast('⚠️ Preço deve ser maior que zero!', 'error');
             return null;
         }
 
-        return { nome, preco, categoria, status, descricao };
+        return { nome, preco, categoria, status, descricao, imagem: this.currentImageBase64 };
     }
 
     alternarAba(aba) {
@@ -66,6 +123,7 @@ class ProductView {
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                        <th style="padding: 12px; width: 80px;">Imagem</th>
                         <th style="padding: 12px;">Produto</th>
                         <th style="padding: 12px;">Categoria</th>
                         <th style="padding: 12px;">Preço</th>
@@ -80,8 +138,13 @@ class ProductView {
                 ? '<span style="background:#d5f5e3; color:#27ae60; padding:3px 8px; border-radius:20px; font-size:0.8rem;">🟢 Ativo</span>'
                 : '<span style="background:#fadbd8; color:#e74c3c; padding:3px 8px; border-radius:20px; font-size:0.8rem;">🔴 Pausado</span>';
 
+            const imagemCell = p.imagem
+                ? `<img src="${p.imagem}" alt="${p.nome}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">`
+                : '<span style="color: #999; font-size: 0.9rem;">Sem imagem</span>';
+
             html += `
                 <tr style="border-bottom: 1px solid #f5f5f5;">
+                    <td style="padding: 12px; text-align: center;">${imagemCell}</td>
                     <td style="padding: 12px; font-weight:500;">${p.nome}</td>
                     <td style="padding: 12px; color:#777;">${p.categoria}</td>
                     <td style="padding: 12px; font-weight:600;">${p.preco.toFixed(2)} MZM</td>
@@ -117,12 +180,21 @@ class ProductView {
         this.nomeInput.value = produto.nome;
         this.precoInput.value = produto.preco;
         this.categoriaSelect.value = produto.categoria;
-        this.descricaoTextarea.value = produto.descricao;
+        this.descricaoTextarea.value = produto.descricao || '';
 
         // Marcar o rádio correspondente ao status
         this.statusRadios.forEach(radio => {
             radio.checked = (radio.value === produto.status);
         });
+
+        // Mostrar imagem se existir
+        if (produto.imagem) {
+            this.currentImageBase64 = produto.imagem;
+            this.previewImg.src = produto.imagem;
+            this.imagePreview.style.display = 'block';
+        } else {
+            this.removeImage();
+        }
 
         this.alternarAba('form');
     }
@@ -131,6 +203,8 @@ class ProductView {
         this.form.reset();
         this.formTitle.innerText = "➕ Adicionar novo produto";
         this.btnSubmitText.innerText = "Adicionar Produto";
+        this.removeImage();
+        this.currentImageBase64 = '';
     }
 
     mostrarToast(mensagem, tipo = 'success') {
